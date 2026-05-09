@@ -1,0 +1,146 @@
+@API = http://localhost:8000
+
+### ==========================================
+### MÓDULO: CATEGORÍAS
+### ==========================================
+
+### 1. Crear Categoría: Hardware
+# @name crear_cat_1
+POST {{API}}/categorias/
+Content-Type: application/json
+
+{
+  "nombre": "Hardware",
+  "descripcion": "Componentes físicos internos de la computadora"
+}
+
+### 2. Crear Categoría: Periféricos
+# @name crear_cat_2
+POST {{API}}/categorias/
+Content-Type: application/json
+
+{
+  "nombre": "Periféricos",
+  "descripcion": "Dispositivos externos y accesorios"
+}
+
+### 3. Listar TODAS las Categorías
+# Debería devolver un StandardResponse con data = lista de categorías
+GET {{API}}/categorias/
+
+### 4. Obtener Categoría por ID (ID: 1)
+GET {{API}}/categorias/1
+
+### 5. Actualizar Categoría (ID: 1)
+# Se verifica que actualice los campos y que modifique la "fecha_modificacion"
+PUT {{API}}/categorias/1
+Content-Type: application/json
+
+{
+  "nombre": "Componentes de PC (Hardware)",
+  "descripcion": "Piezas fundamentales para el armado de equipos"
+}
+
+
+### ==========================================
+### MÓDULO: PRODUCTOS
+### ==========================================
+
+### 6. Crear Producto con una Categoría
+# Se le asigna la categoría 1 creada anteriormente
+POST {{API}}/productos/
+Content-Type: application/json
+
+{
+  "nombre": "Placa de Video RTX 4060",
+  "descripcion": "Nvidia Geforce RTX 4060 8GB GDDR6",
+  "precio_base": 350000.00,
+  "imagen_url": ["https://ejemplo.com/rtx4060_1.jpg", "https://ejemplo.com/rtx4060_2.jpg"],
+  "disponible": true,
+  "categoria_ids": [1]
+}
+
+### 7. Crear Producto con MÚLTIPLES Categorías
+# Se le asignan las categorías 1 y 2
+POST {{API}}/productos/
+Content-Type: application/json
+
+{
+  "nombre": "Monitor Gamer 144hz 24'",
+  "descripcion": "Monitor con panel IPS y 1ms de respuesta",
+  "precio_base": 210000.00,
+  "imagen_url": ["https://ejemplo.com/monitor.jpg"],
+  "disponible": true,
+  "categoria_ids": [1, 2]
+}
+
+### 8. Listar TODOS los Productos
+# Por la optimización selectinload, esto no generará consultas N+1 en la consola del backend.
+GET {{API}}/productos/
+
+### 9. Obtener Producto por ID (ID: 1)
+GET {{API}}/productos/1
+
+### 10. Actualizar Producto (ID: 1)
+# Modifica precios y reemplaza las categorías asignadas (pasa de [1] a [2])
+# Debería generar una actualización en la "fecha_modificacion"
+PUT {{API}}/productos/1
+Content-Type: application/json
+
+{
+  "nombre": "Placa de Video RTX 4060 Ti",
+  "descripcion": "Nvidia Geforce RTX 4060 Ti 16GB",
+  "precio_base": 420000.00,
+  "imagen_url": ["https://ejemplo.com/rtx4060ti.jpg"],
+  "disponible": true,
+  "categoria_ids": [2]
+}
+
+
+### ==========================================
+### MÓDULO: RELACIONES (PRODUCTO - CATEGORÍA)
+### ==========================================
+
+### 11. Listar todas las relaciones generadas automáticamente
+GET {{API}}/producto-categorias/
+
+### 12. Obtener las categorías asociadas al Producto 2
+GET {{API}}/producto-categorias/producto/2
+
+
+### ==========================================
+### CASOS DE ERROR (VALIDACIONES)
+### ==========================================
+
+### 13. Obtener un Producto que no existe (Debería dar 404 estandarizado o de FastAPI)
+GET {{API}}/productos/999
+
+### 14. Crear Producto con una Categoría inexistente (Debería dar 404 Categoría no encontrada)
+POST {{API}}/productos/
+Content-Type: application/json
+
+{
+  "nombre": "Mouse Genérico",
+  "descripcion": "Falla a propósito",
+  "precio_base": 5000.00,
+  "imagen_url": [],
+  "disponible": false,
+  "categoria_ids": [999]
+}
+
+
+### ==========================================
+### MÓDULO: ELIMINACIÓN (EN CASCADA)
+### ==========================================
+
+### 15. Eliminar Producto 2 (Verifica borrado de relaciones previas en cascada manual)
+DELETE {{API}}/productos/2
+
+### 16. Eliminar Producto 1
+DELETE {{API}}/productos/1
+
+### 17. Eliminar Categoría 2
+DELETE {{API}}/categorias/2
+
+### 18. Eliminar Categoría 1
+DELETE {{API}}/categorias/1

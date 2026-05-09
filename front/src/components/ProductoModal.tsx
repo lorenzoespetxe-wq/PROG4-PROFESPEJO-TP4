@@ -6,6 +6,7 @@ interface Props {
   productoEditando: Producto | null;
   formData: ProductoFormData;
   categorias: Categoria[];
+  isMutating: boolean;
   onFormChange: (field: keyof ProductoFormData, value: any) => void;
   onCategoriaToggle: (categoriaId: number) => void;
   onClose: () => void;
@@ -17,12 +18,19 @@ const ProductoModal = ({
   productoEditando,
   formData,
   categorias,
+  isMutating,
   onFormChange,
   onCategoriaToggle,
   onClose,
   onSubmit,
 }: Props) => {
   if (!isOpen) return null;
+
+  const isDisabled =
+    !formData.nombre.trim() ||
+    formData.precio_base === "" ||
+    Number(formData.precio_base) <= 0 ||
+    isMutating;
 
   return (
     <div
@@ -62,7 +70,9 @@ const ProductoModal = ({
             <input
               type="number"
               value={formData.precio_base}
-              onChange={(e) => onFormChange("precio_base", e.target.value === "" ? "" : Number(e.target.value))}
+              onChange={(e) =>
+                onFormChange("precio_base", e.target.value === "" ? "" : Number(e.target.value))
+              }
               className="border border-gray-200 rounded-lg px-4 py-2.5 text-sm"
               placeholder="Ej: 15000"
               min="0"
@@ -81,7 +91,10 @@ const ProductoModal = ({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-600">URL Imagen</label>
+            <label className="text-sm font-semibold text-gray-600">
+              URL(s) de Imagen{" "}
+              <span className="text-gray-400 font-normal">(separadas por coma)</span>
+            </label>
             <input
               type="text"
               value={formData.imagen_url}
@@ -106,11 +119,16 @@ const ProductoModal = ({
           <div className="flex flex-col gap-2 md:col-span-2 border-t pt-3 mt-2">
             <label className="text-sm font-semibold text-gray-600">Categorías Asignadas</label>
             {categorias.length === 0 ? (
-              <p className="text-sm text-gray-400 italic">No hay categorías creadas. Crea una primero.</p>
+              <p className="text-sm text-gray-400 italic">
+                No hay categorías creadas. Creá una primero.
+              </p>
             ) : (
               <div className="grid grid-cols-2 gap-2">
                 {categorias.map((cat) => (
-                  <label key={cat.id} className="flex items-center gap-2 cursor-pointer bg-gray-50 p-2 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors">
+                  <label
+                    key={cat.id}
+                    className="flex items-center gap-2 cursor-pointer bg-gray-50 p-2 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors"
+                  >
                     <input
                       type="checkbox"
                       checked={formData.categoria_ids.includes(cat.id)}
@@ -134,10 +152,14 @@ const ProductoModal = ({
           </button>
           <button
             onClick={onSubmit}
-            disabled={!formData.nombre.trim() || formData.precio_base === "" || formData.precio_base <= 0}
+            disabled={isDisabled}
             className="flex-1 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
           >
-            {productoEditando ? "Guardar cambios" : "Crear producto"}
+            {isMutating
+              ? "Guardando..."
+              : productoEditando
+              ? "Guardar cambios"
+              : "Crear producto"}
           </button>
         </div>
       </div>

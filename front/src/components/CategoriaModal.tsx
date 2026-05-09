@@ -1,15 +1,11 @@
-import { type Categoria } from "../types/categoria";
-
-interface FormData {
-  nombre: string;
-  descripcion: string;
-}
+import { type Categoria, type CategoriaFormData } from "../types/categoria";
 
 interface Props {
   isOpen: boolean;
   categoriaEditando: Categoria | null;
-  formData: FormData;
-  onFormChange: (field: keyof FormData, value: string) => void;
+  formData: CategoriaFormData;
+  isMutating: boolean;
+  onFormChange: (field: keyof CategoriaFormData, value: string) => void;
   onClose: () => void;
   onSubmit: () => void;
 }
@@ -18,11 +14,14 @@ const CategoriaModal = ({
   isOpen,
   categoriaEditando,
   formData,
+  isMutating,
   onFormChange,
   onClose,
   onSubmit,
 }: Props) => {
   if (!isOpen) return null;
+
+  const isDisabled = !formData.nombre.trim() || isMutating;
 
   return (
     <div
@@ -63,9 +62,7 @@ const CategoriaModal = ({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-600">
-              Descripción
-            </label>
+            <label className="text-sm font-semibold text-gray-600">Descripción</label>
             <textarea
               value={formData.descripcion}
               onChange={(e) => onFormChange("descripcion", e.target.value)}
@@ -86,10 +83,14 @@ const CategoriaModal = ({
           </button>
           <button
             onClick={onSubmit}
-            disabled={!formData.nombre.trim()}
+            disabled={isDisabled}
             className="flex-1 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
           >
-            {categoriaEditando ? "Guardar cambios" : "Crear categoría"}
+            {isMutating
+              ? "Guardando..."
+              : categoriaEditando
+              ? "Guardar cambios"
+              : "Crear categoría"}
           </button>
         </div>
       </div>

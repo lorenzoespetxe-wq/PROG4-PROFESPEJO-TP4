@@ -10,6 +10,8 @@ from sqlmodel import SQLModel
 from app.producto.model import Producto
 from app.categoria.model import Categoria
 from app.producto_categoria.model import ProductoCategoria
+from app.producto_ingrediente.model import ProductoIngrediente
+from app.ingrediente.model import Ingrediente
 
 
 config = context.config

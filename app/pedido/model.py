@@ -25,6 +25,7 @@ class Pedido(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     estado: EstadoPedido = Field(default=EstadoPedido.PENDIENTE)
     cliente: str = Field(max_length=100)
+    observaciones: Optional[str] = Field(default=None, max_length=200)
 
     # Campos de auditoría:
     fecha_creacion: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
